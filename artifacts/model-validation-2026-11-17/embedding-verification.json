@@ -1,0 +1,154 @@
+{
+  "records": [
+    {
+      "event": "followup_started",
+      "utc": "2026-11-17T06:21:28.195973+00:00"
+    },
+    {
+      "event": "test_started",
+      "test": "embedding_retrieval_and_query_prefix"
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_retrieval_and_query_prefix",
+      "passed": true,
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.89975511
+            },
+            {
+              "index": 3,
+              "score": 0.61724562
+            },
+            {
+              "index": 1,
+              "score": 0.40515669
+            },
+            {
+              "index": 2,
+              "score": 0.35803246
+            },
+            {
+              "index": 4,
+              "score": 0.31214499
+            },
+            {
+              "index": 5,
+              "score": 0.27283306
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.88124724
+            },
+            {
+              "index": 3,
+              "score": 0.60230115
+            },
+            {
+              "index": 1,
+              "score": 0.39647166
+            },
+            {
+              "index": 2,
+              "score": 0.34798658
+            },
+            {
+              "index": 4,
+              "score": 0.30647604
+            },
+            {
+              "index": 5,
+              "score": 0.24882022
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1,
+          "ranking": [
+            {
+              "index": 1,
+              "score": 0.73116187
+            },
+            {
+              "index": 2,
+              "score": 0.43184247
+            },
+            {
+              "index": 0,
+              "score": 0.32939359
+            },
+            {
+              "index": 4,
+              "score": 0.29541743
+            },
+            {
+              "index": 3,
+              "score": 0.28160509
+            },
+            {
+              "index": 5,
+              "score": 0.28045145
+            }
+          ],
+          "top1_correct": true
+        }
+      ],
+      "dimensions": [
+        2560
+      ],
+      "norm_range": [
+        0.9999999799401605,
+        1.0000000514340104
+      ],
+      "query_prefix_direct_check_http": 200,
+      "max_prefix_vector_difference": 0.0002265647053718567,
+      "prefix_vector_cosines": [
+        0.9999975583238507,
+        0.999997682892687,
+        1.0
+      ],
+      "seconds": 4.992
+    },
+    {
+      "event": "test_started",
+      "test": "embedding_batch_17"
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_batch_17",
+      "passed": false,
+      "all_inputs_returned_correct_dimensions": true,
+      "inputs": 17,
+      "outputs": 17,
+      "saved_max_chunks": "16",
+      "schema_max_chunks": 1,
+      "dimensions": [
+        2560
+      ],
+      "finite": true,
+      "seconds": 3.927
+    },
+    {
+      "event": "configuration_unchanged",
+      "unchanged": true
+    }
+  ],
+  "runner_exit_code": 0
+}

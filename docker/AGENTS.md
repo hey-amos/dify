@@ -7,7 +7,7 @@
 - 先读 [LOCAL_CHANGES.md](LOCAL_CHANGES.md)，了解本地修复、配置位置、上游依据和已有验证结果；配置加载与覆盖规则以 [README.md](README.md#configure-dify) 和实际 Compose 定义为准。
 - 核对当前分支、`git status` 和相关差异，保留用户已有修改。修改记录是历史快照，不代表当前分支、配置或服务状态；仅按任务需要核实实际状态。
 - `.env` 和服务专属的 `envs/**/*.env` 被 Git 忽略。Git 工作区没有变化不代表这些文件不存在，也不代表其中没有用户配置。
-- 新服务器的 IP + HTTP 部署入口为 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md) 和 [deploy.py](deploy.py)。`init` / `deploy` 只用于全新部署；编写或验证脚本不等于获准在现有部署上执行它。
+- 新服务器的 IP + HTTP 部署入口为 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md) 和 [deploy.sh](deploy.sh)。脚本补齐缺失的配置文件和变量，保留已有值，然后执行 `docker compose up -d`；编写或验证脚本不等于获准在现有部署上执行它。
 
 ## 配置与生成规则
 
@@ -36,7 +36,7 @@ git diff --check
 ```
 
 - 按改动范围选择检查；纯文档修改只需核对内容、路径和格式。
-- 修改服务器部署脚本时运行 `python3 tests/test_server_deploy.py`；测试在临时目录解析真实 Compose，并模拟 Docker 启动命令，不启动容器。
+- 修改服务器部署脚本时运行 `python3 tests/test_server_deploy.py`；这是开发机／CI 测试，Python 不属于服务器部署依赖；测试在临时目录调用 `deploy.sh`、解析真实 Compose，并模拟 Docker 启动命令，不启动容器。
 - `config -q` 仅验证配置可解析。需要核实变量是否生效时，解析 `config --format json` 的结果，只输出必要的非敏感字段，不直接展示完整配置。
 - 修改权限初始化逻辑时，至少检查“API 已初始化但插件目录尚未初始化”和“权限设置失败”两种情况。可以使用临时目录模拟失败，不操作真实持久化数据目录。
 - 区分配置解析、脚本验证与真实运行验证；没有实际启动服务时，不声称插件安装、Web 请求或整套服务健康状态已验证。

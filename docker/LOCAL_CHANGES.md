@@ -1,8 +1,8 @@
 # 本地部署修改记录
 
-初始记录日期：2026-11-14；最近更新：2026-11-16。
+初始记录日期：2026-11-14；最近更新：2026-11-17。
 
-基线为 `v1.19.0` 分支的 `8e689e868b`，镜像标签保持不变。初始配置及项目名调整阶段未启动容器；用户随后已启动服务，完成管理员账户、插件和三个模型的初始配置。当前已进入运行验证阶段。
+基线为 `v1.19.0` 分支的 `8e689e868b`，镜像标签保持不变。本文记录相对于原版本的部署配置修改；本机端口和访问地址以“本机端口与访问地址配置”一节为准。
 
 后续 agent 的协作入口为 [AGENTS.md](AGENTS.md)，其中记录配置维护规则、验证方式及操作范围。部署修改集中记录在本文，模型参数、两套生成方案和实测结果见 [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md)。
 
@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | [docker-compose-template.yaml](docker-compose-template.yaml) | 补齐插件存储目录权限初始化、初始化失败退出和插件启动依赖 | 跟踪 |
 | [docker-compose.yaml](docker-compose.yaml) | 从模板重新生成，供 Docker Compose 实际读取 | 跟踪 |
-| [.env](.env) | 设置项目名 `dify`，显式清空 `CONSOLE_API_URL` 以使用同域地址，保留默认 profiles 和沙箱 token；不设置 `HOSTNAME` | 忽略 |
+| [.env](.env) | 设置项目名 `dify`，显式清空 `CONSOLE_API_URL` 以使用同域地址，保留默认 profiles 和沙箱 token；配置本机端口、公开访问地址和内部文件地址；不设置 `HOSTNAME` | 忽略 |
 | [envs/core-services/web.env](envs/core-services/web.env) | 仅为 Web 设置 `HOSTNAME=0.0.0.0` | 忽略 |
 | [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) | 记录三个模型的已保存配置、问答和推理两套生成参数、真实调用结果及机房重排待办 | 跟踪 |
 
@@ -59,8 +59,37 @@ Compose 的 `web.env_file` 已明确引用这个可选文件。它在现有 `1.1
 - `COMPOSE_PROFILES=weaviate,postgresql,collaboration`。
 - `CONSOLE_API_URL=`，显式覆盖 API 镜像的 localhost 默认值。
 - `DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN`，由 Agent 后端和本地沙箱共同使用。
+- 本机端口、公开访问地址和内部文件地址，完整配置见下一节。
 
 沙箱 token 在此次配置迁移中保持不变，根 `.env` 文件权限保持为 `600`。配置分工和覆盖规则见 [部署说明](README.md#configure-dify)。
+
+## 本机端口与访问地址配置
+
+配置调整日期：2026-11-17。宿主机的 `80/443` 已由本机 Nginx 使用，Dify 改用宿主机端口 `18080/18443`，容器内 Nginx 仍使用 `80/443`。本机 HTTP 入口统一为 `http://localhost:18080`。
+
+在根 `.env` 中补齐以下配置；已有同名项应直接修改原行，避免重复定义。其余项目名、profiles、沙箱 token 等配置仍按前文保留，`HOSTNAME=0.0.0.0` 仍只写在 `envs/core-services/web.env`。
+
+```dotenv
+EXPOSE_NGINX_PORT=18080
+EXPOSE_NGINX_SSL_PORT=18443
+
+CONSOLE_API_URL=
+CONSOLE_WEB_URL=http://localhost:18080
+SERVICE_API_URL=http://localhost:18080
+APP_WEB_URL=http://localhost:18080
+FILES_URL=http://localhost:18080
+INTERNAL_FILES_URL=http://api:5001
+TRIGGER_URL=http://localhost:18080
+NEXT_PUBLIC_SOCKET_URL=/
+```
+
+- `CONSOLE_API_URL=` 显式覆盖 API 镜像内的 `http://127.0.0.1:5001`，让控制台 API 和供应商图标使用相对路径，不能直接删除。`APP_API_URL` 则由 `web.defaults` 默认置空，根 `.env` 不再重复配置。
+- `NEXT_PUBLIC_SOCKET_URL=/` 让 Socket.IO 使用当前页面的域名、端口和协议：HTTP 自动连接 `ws`，HTTPS 自动连接 `wss`，路径仍为 `/socket.io/`。不能省略或留空，否则会使用 Compose 的 `ws://localhost` 或前端的 `ws://localhost:5001` 默认值。固定为 `ws://localhost:18080` 时，从其他域名访问会丢失当前站点的登录 Cookie，导致编排界面停在“同步数据中”。
+- `CONSOLE_WEB_URL`、`APP_WEB_URL`、`SERVICE_API_URL` 保留完整的公开入口，覆盖镜像内的 `127.0.0.1:3000/5001`。控制台邀请、人工输入审批链接等后台生成的链接需要完整地址，不能统一改成 `/`。
+- `FILES_URL` 和 `TRIGGER_URL` 保留完整的公开地址，供文件链接、模型访问文件及第三方触发器回调使用；留空或省略不能保证这些功能可用。`INTERNAL_FILES_URL` 保持 `http://api:5001`，供容器内部访问文件。
+- `EXPOSE_NGINX_SSL_PORT=18443` 只设置端口映射。`NGINX_HTTPS_ENABLED` 保持默认 `false`，Dify 自带 Nginx 不终止 TLS；本机 OrbStack 提供的 HTTPS 入口与此独立，无需将其魔法域名写入配置。
+
+以上 `localhost` 绝对地址用于宿主机本地部署；需要其他设备或外部服务访问时，应替换为它们可达的正式 IP／域名、端口和 HTTP／HTTPS 协议。浏览器 API 与 WebSocket 跟随当前入口，后台生成的完整链接仍使用这里配置的公开地址。WebSocket 的 `/` 和内部文件地址不随服务器 IP 变化。新服务器只需向 [deploy.sh](deploy.sh) 提供 IP 和端口，由脚本生成这些配置，见 [SERVER_DEPLOYMENT.md](SERVER_DEPLOYMENT.md)。
 
 ## 已安装模型供应商图标修复
 
@@ -75,11 +104,11 @@ Compose 的 `web.env_file` 已明确引用这个可选文件。它在现有 `1.1
 CONSOLE_API_URL=
 ```
 
-这里留空是有意的覆盖，不能直接删除该行，否则 API 容器会重新继承镜像的 localhost 值。当前为同域 Nginx 部署，生成的相对图标路径由浏览器按当前 HTTPS 域名解析；变量含义见 [Dify 环境变量文档](https://docs.dify.ai/en/self-host/deploy/configuration/environments#console-api-url)。
+这里留空是有意的覆盖，不能直接删除该行，否则 API 容器会重新继承镜像的 localhost 值。同域 Nginx 部署中，生成的相对图标路径由浏览器按实际访问的协议和域名解析；变量含义见 [Dify 环境变量文档](https://docs.dify.ai/en/self-host/deploy/configuration/environments#console-api-url)。
 
 Compose 解析验证通过后，仅重建了读取该配置的 `api`、`api_websocket`、`worker` 和 `worker_beat`；未升级镜像或改动数据卷。Web 的有效 `CONSOLE_API_URL` 原本就是空值，无需重建。浏览器刷新后已确认供应商图标实际加载成功。
 
-这项修复只处理控制台图标地址，没有配置 OAuth 回调、外部文件访问或其他公开服务地址。
+这项修复本身只处理控制台图标地址；其他公开服务地址的配置见前文“本机端口与访问地址配置”。
 
 ## 模型配置与运行验证
 
@@ -154,19 +183,17 @@ docker compose config -q
 
 这些配置检查不会启动容器。用户后续已安装插件；本次运行验证覆盖图标加载及模型调用，未重装插件，也未进行 Web 并发或整套服务的压力测试。
 
-## 2026-11-16：服务器部署入口
+## 服务器部署入口
 
-新增 [服务器部署说明](SERVER_DEPLOYMENT.md)、[部署脚本](deploy.py) 和 [针对性测试](tests/test_server_deploy.py)，并在本地新增的 AGENTS 中增加入口。用户选择先通过服务器 IP 和 HTTP 端口访问。
+新增 [服务器部署说明](SERVER_DEPLOYMENT.md)、[部署脚本](deploy.sh) 和 [针对性测试](tests/test_server_deploy.py)。原 `README.md` 保持不变，本地部署工具和说明使用独立文件。
 
-按用户要求，已撤销原有 `README.md` 中新增的导航。后续本地部署说明和工具优先通过新增独立文件提供，尽量保持原项目文件不变。
+2026-11-17 的最终配置方式：
 
-- 面向全新 Linux 单机部署，沿用当前 Compose 和项目名 `dify`；不改 Compose 模板、生成文件或镜像标签。
-- `deploy` 初始化并启动，`init` 只生成配置，`check` 只校验，`up` 使用现有配置启动或重试。脚本不安装 Docker，不自动修改主机网络设置。
-- 在新服务器生成权限为 `600` 的根 `.env` 和 Web 专属 `.env`，生成独立的应用、数据库、Redis、插件及沙箱密钥，正确配对服务端与客户端；Weaviate 使用随机密钥并关闭匿名访问。
-- 纳入同域图标地址和 Web `HOSTNAME` 修复，按服务器 IP／端口配置公开 URL 与协作 WebSocket；插件调试端口仅绑定回环地址，不启用 HTTPS。
-- 遇到已有配置、默认服务数据或同名 Docker 容器／命名卷时拒绝初始化；保留凭据，重试不重新生成。只拉取缺失镜像，已有本地镜像继续使用。
-- 提交前审查补齐边界：拒绝与插件调试冲突的 HTTP `5003` 端口，识别没有 Compose 标签的同名 Agent 沙箱卷，并拒绝带 scope ID 的 IPv6 输入，避免生成无效 URL 或混入额外环境配置行。
-- 提供仅包含部署文件的传输包生成方法，排除本机 `.env`、插件缓存和运行数据；模型推荐参数通过文档在新实例中另行配置。
-- 部署说明补充完整操作步骤：从最新提交打包并生成 SHA256 校验文件，上传、校验、新建目录和解压，再分步生成配置、检查权限、启动、查看状态及失败重试；原有 `README.md` 保持还原状态。本次仅更新文档，没有执行其中的启动命令。
+- 使用 Bash 脚本 `deploy.sh` 替代 `deploy.py`，服务器不依赖 Python。拉取代码后执行 `bash deploy.sh --host 服务器IP或域名 --port HTTP端口`。
+- 缺少根 `.env` 或 `envs/core-services/web.env` 时创建文件，权限为 `600`；文件已存在时保留其内容和权限，仅追加未定义的变量，包括已有空值在内均不覆盖。
+- 补充项目名、默认 profiles、端口、公开 URL、同源 API／WebSocket 和 Web 监听地址。新补的公开 URL 使用 Compose 变量引用，复用已有的控制台入口和 HTTP 端口。
+- 仅在根 `.env` 未定义必填沙箱 token 时生成随机值。数据库、Redis、插件等其他设置使用现有值或项目默认值，不额外生成或替换密码。
+- 配置补齐后直接执行 `docker compose up -d`。移除原来的 `init / check / up / deploy` 分阶段入口，以及版本检查、数据目录／卷扫描、项目归属判断、手动拉取镜像和健康等待逻辑。
+- 脚本可重复执行。地址参数只用于补充缺失项，修改已有值需直接编辑配置文件。
 
-新增 13 项部署脚本测试和现有 26 项 Compose 测试均通过。验证使用临时目录和合成密钥，覆盖真实 Compose 的变量传递、HTTP／WebSocket 地址、端口、已有数据保护、重复初始化、旧 Compose 版本及启动失败分支。未在本机或远端启动、重建容器，未修改当前正在使用的环境文件或模型配置；服务器实际镜像拉取、启动及业务验证需在目标环境执行。
+`tests/test_server_deploy.py` 在临时目录验证首次补齐、重复执行、保留已有值／空值、配置引用和启动失败后的重试，并使用真实 Compose 解析配置。Python 仅用于开发机／CI 测试，不是服务器部署依赖。

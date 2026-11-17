@@ -1,0 +1,5 @@
+{
+  "plugin_sdk_version": "0.10.2",
+  "configured_max_chunks": 16,
+  "runtime_get_max_chunks": 1
+}

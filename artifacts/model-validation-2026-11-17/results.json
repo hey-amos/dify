@@ -1,0 +1,820 @@
+{
+  "records": [
+    {
+      "event": "run_started",
+      "utc": "2026-11-17T06:14:38.928435+00:00",
+      "provider": "langgenius/openai_api_compatible/openai_api_compatible",
+      "models": [
+        "Qwen3.8-27B",
+        "Qwen3-Embedding-4B",
+        "Qwen3-Reranker-4B"
+      ],
+      "fixture_note": "New synthetic fixtures following documented test categories; the old document did not retain exact full fixtures.",
+      "documents": [
+        "Dify 安装插件时，插件存储目录必须允许 UID 1001、GID 1001 的进程读写。只修复 API 存储目录的权限并不能保证插件目录可写。",
+        "Qwen3-Embedding-4B 将文本转换为用于知识库语义检索的向量。本测试服务输出 2560 维向量；查询可带任务指令，文档保持原文。",
+        "Reranker 用于对检索出的候选文档重新评分排序，帮助把与问题相关的段落排到前面。它不是生成回答的聊天模型。",
+        "Dify Web 在容器内监听 0.0.0.0:3000，经 Nginx 代理后，本机浏览器使用 http://localhost:18080 访问。",
+        "SQLite 是嵌入式关系数据库，通常将数据保存在单个文件中，适用于本地应用。",
+        "冲泡茶叶时可根据茶叶种类选择水温和浸泡时间，时间过长可能使茶汤苦涩。"
+      ],
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1
+        }
+      ]
+    },
+    {
+      "event": "saved_configuration",
+      "model": "Qwen3.8-27B",
+      "parameters": {
+        "context_size": "262144",
+        "max_tokens_to_sample": "16384",
+        "mode": "chat",
+        "api_type": "chat_completions",
+        "agent_thought_support": "supported",
+        "compatibility_mode": "extended",
+        "token_param_name": "max_tokens",
+        "function_calling_type": "tool_call",
+        "stream_function_calling": "supported",
+        "vision_support": "support",
+        "structured_output_support": "supported",
+        "stream_include_usage": "enabled"
+      },
+      "features": [
+        "multi-tool-call",
+        "stream-tool-call",
+        "vision",
+        "structured-output",
+        "agent-thought"
+      ],
+      "properties": {
+        "context_size": 262144,
+        "mode": "chat"
+      },
+      "max_tokens_rule": [
+        {
+          "min": 1.0,
+          "max": 16384.0
+        }
+      ]
+    },
+    {
+      "event": "test_started",
+      "test": "metadata_Qwen3.8-27B"
+    },
+    {
+      "event": "test_result",
+      "test": "metadata_Qwen3.8-27B",
+      "passed": true,
+      "http_status": 200,
+      "model_metadata": [
+        {
+          "id": "qwen3.8-27b",
+          "max_model_len": 262144
+        }
+      ],
+      "seconds": 0.149
+    },
+    {
+      "event": "saved_configuration",
+      "model": "Qwen3-Embedding-4B",
+      "parameters": {
+        "context_size": "32768",
+        "vision_support": "no_support",
+        "max_chunks": "16",
+        "encoding_format": "float",
+        "query_prefix": "Instruct: Retrieve the passage that best answers the question.\nQuery:"
+      },
+      "features": [],
+      "properties": {
+        "context_size": 32768,
+        "max_chunks": 1
+      },
+      "max_tokens_rule": []
+    },
+    {
+      "event": "test_started",
+      "test": "metadata_Qwen3-Embedding-4B"
+    },
+    {
+      "event": "test_result",
+      "test": "metadata_Qwen3-Embedding-4B",
+      "passed": true,
+      "http_status": 200,
+      "model_metadata": [
+        {
+          "id": "Qwen3-Embedding-4B",
+          "max_model_len": 40960
+        }
+      ],
+      "seconds": 0.046
+    },
+    {
+      "event": "saved_configuration",
+      "model": "Qwen3-Reranker-4B",
+      "parameters": {
+        "context_size": "8192",
+        "vision_support": "no_support"
+      },
+      "features": [],
+      "properties": {},
+      "max_tokens_rule": []
+    },
+    {
+      "event": "test_started",
+      "test": "metadata_Qwen3-Reranker-4B"
+    },
+    {
+      "event": "test_result",
+      "test": "metadata_Qwen3-Reranker-4B",
+      "passed": true,
+      "http_status": 200,
+      "model_metadata": [
+        {
+          "id": "qwen3-reranker-4b",
+          "max_model_len": 8192
+        }
+      ],
+      "seconds": 0.057
+    },
+    {
+      "event": "test_started",
+      "test": "llm_non_thinking"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_non_thinking",
+      "passed": true,
+      "answer": "126",
+      "reasoning_chars": 0,
+      "usage": {
+        "prompt_tokens": 27,
+        "completion_tokens": 4,
+        "total_tokens": 31
+      },
+      "seconds": 0.267
+    },
+    {
+      "event": "test_started",
+      "test": "llm_thinking_medium"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_thinking_medium",
+      "passed": true,
+      "answer": "126",
+      "reasoning_chars": 42,
+      "usage": {
+        "prompt_tokens": 25,
+        "completion_tokens": 36,
+        "total_tokens": 61
+      },
+      "seconds": 1.025
+    },
+    {
+      "event": "test_started",
+      "test": "llm_stream_text_usage"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_stream_text_usage",
+      "passed": true,
+      "answer": "126",
+      "chunks": 4,
+      "finish_reason": "stop",
+      "reasoning_chars": 0,
+      "usage": {
+        "prompt_tokens": 27,
+        "completion_tokens": 4,
+        "total_tokens": 31
+      },
+      "seconds": 0.19
+    },
+    {
+      "event": "test_started",
+      "test": "llm_tool_call"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_tool_call",
+      "passed": true,
+      "tool_calls": [
+        {
+          "name": "add_numbers",
+          "arguments": {
+            "a": 17,
+            "b": 25
+          }
+        }
+      ],
+      "stream_chunks": 0,
+      "usage": {
+        "prompt_tokens": 315,
+        "completion_tokens": 38,
+        "total_tokens": 353
+      },
+      "tools_executed": false,
+      "seconds": 1.18
+    },
+    {
+      "event": "test_started",
+      "test": "llm_stream_tool_call"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_stream_tool_call",
+      "passed": true,
+      "tool_calls": [
+        {
+          "name": "add_numbers",
+          "arguments": {
+            "a": 17,
+            "b": 25
+          }
+        }
+      ],
+      "stream_chunks": 2,
+      "usage": {
+        "prompt_tokens": 315,
+        "completion_tokens": 38,
+        "total_tokens": 353
+      },
+      "tools_executed": false,
+      "seconds": 1.084
+    },
+    {
+      "event": "test_started",
+      "test": "llm_json_schema_sample"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_json_schema_sample",
+      "passed": true,
+      "result": {
+        "city": "成都",
+        "sum": 42
+      },
+      "transport": "supported: JSON mode plus schema prompt",
+      "usage": {
+        "prompt_tokens": 112,
+        "completion_tokens": 20,
+        "total_tokens": 132
+      },
+      "seconds": 0.566
+    },
+    {
+      "event": "test_started",
+      "test": "llm_vision"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_vision",
+      "passed": true,
+      "answer": "红色",
+      "image": "synthetic 64x64 solid red PNG",
+      "usage": {
+        "prompt_tokens": 91,
+        "completion_tokens": 2,
+        "total_tokens": 93
+      },
+      "seconds": 0.173
+    },
+    {
+      "event": "test_started",
+      "test": "llm_context_over_4k"
+    },
+    {
+      "event": "test_result",
+      "test": "llm_context_over_4k",
+      "passed": true,
+      "answer": "VERIFY-7319-END",
+      "expected": "VERIFY-7319-END",
+      "usage": {
+        "prompt_tokens": 7837,
+        "completion_tokens": 8,
+        "total_tokens": 7845
+      },
+      "seconds": 1.297
+    },
+    {
+      "event": "test_started",
+      "test": "embedding_retrieval_and_query_prefix"
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_retrieval_and_query_prefix",
+      "passed": false,
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.89967821
+            },
+            {
+              "index": 3,
+              "score": 0.61729083
+            },
+            {
+              "index": 1,
+              "score": 0.40542345
+            },
+            {
+              "index": 2,
+              "score": 0.35834578
+            },
+            {
+              "index": 4,
+              "score": 0.31242133
+            },
+            {
+              "index": 5,
+              "score": 0.27314902
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.88112832
+            },
+            {
+              "index": 3,
+              "score": 0.60248497
+            },
+            {
+              "index": 1,
+              "score": 0.39689973
+            },
+            {
+              "index": 2,
+              "score": 0.3482729
+            },
+            {
+              "index": 4,
+              "score": 0.30652867
+            },
+            {
+              "index": 5,
+              "score": 0.24909309
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1,
+          "ranking": [
+            {
+              "index": 1,
+              "score": 0.73101974
+            },
+            {
+              "index": 2,
+              "score": 0.43185147
+            },
+            {
+              "index": 0,
+              "score": 0.32922324
+            },
+            {
+              "index": 4,
+              "score": 0.2954172
+            },
+            {
+              "index": 3,
+              "score": 0.28171148
+            },
+            {
+              "index": 5,
+              "score": 0.2802827
+            }
+          ],
+          "top1_correct": true
+        }
+      ],
+      "dimensions": [
+        2560
+      ],
+      "norm_range": [
+        0.9999999327755537,
+        1.0000000255939394
+      ],
+      "query_prefix_direct_check_http": 200,
+      "max_prefix_vector_difference": 0.00034730881452560425,
+      "seconds": 1.549
+    },
+    {
+      "event": "test_started",
+      "test": "embedding_batch_17"
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_batch_17",
+      "passed": true,
+      "inputs": 17,
+      "outputs": 17,
+      "saved_max_chunks": "16",
+      "dimensions": [
+        2560
+      ],
+      "finite": true,
+      "seconds": 2.389
+    },
+    {
+      "event": "test_started",
+      "test": "reranker_server_metadata"
+    },
+    {
+      "event": "test_result",
+      "test": "reranker_server_metadata",
+      "passed": true,
+      "version": "0.17.1",
+      "openapi_status": 200,
+      "rerank_request_has_chat_template": false,
+      "seconds": 0.216
+    },
+    {
+      "event": "test_started",
+      "test": "reranker_dify_normal"
+    },
+    {
+      "event": "test_result",
+      "test": "reranker_dify_normal",
+      "passed": false,
+      "mode": "dify",
+      "correct_top1": 1,
+      "total_queries": 3,
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0,
+          "status": "plugin invocation succeeded",
+          "ranking": [
+            {
+              "index": 4,
+              "score": 0.77020311
+            },
+            {
+              "index": 2,
+              "score": 0.71545655
+            },
+            {
+              "index": 1,
+              "score": 0.67346811
+            },
+            {
+              "index": 5,
+              "score": 0.51628512
+            },
+            {
+              "index": 0,
+              "score": 0.46710131
+            },
+            {
+              "index": 3,
+              "score": 0.44204506
+            }
+          ],
+          "top1_correct": false
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0,
+          "status": "plugin invocation succeeded",
+          "ranking": [
+            {
+              "index": 5,
+              "score": 0.77891243
+            },
+            {
+              "index": 0,
+              "score": 0.65554506
+            },
+            {
+              "index": 1,
+              "score": 0.46516505
+            },
+            {
+              "index": 2,
+              "score": 0.43436715
+            },
+            {
+              "index": 3,
+              "score": 0.36557165
+            },
+            {
+              "index": 4,
+              "score": 0.30856663
+            }
+          ],
+          "top1_correct": false
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1,
+          "status": "plugin invocation succeeded",
+          "ranking": [
+            {
+              "index": 1,
+              "score": 0.81704617
+            },
+            {
+              "index": 5,
+              "score": 0.67224884
+            },
+            {
+              "index": 2,
+              "score": 0.47121197
+            },
+            {
+              "index": 3,
+              "score": 0.42727697
+            },
+            {
+              "index": 4,
+              "score": 0.31633109
+            },
+            {
+              "index": 0,
+              "score": 0.29993579
+            }
+          ],
+          "top1_correct": true
+        }
+      ],
+      "seconds": 0.276
+    },
+    {
+      "event": "test_started",
+      "test": "reranker_direct_normal"
+    },
+    {
+      "event": "test_result",
+      "test": "reranker_direct_normal",
+      "passed": false,
+      "mode": "direct",
+      "correct_top1": 1,
+      "total_queries": 3,
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 4,
+              "score": 0.77000797
+            },
+            {
+              "index": 2,
+              "score": 0.71516061
+            },
+            {
+              "index": 1,
+              "score": 0.67359906
+            },
+            {
+              "index": 5,
+              "score": 0.516258
+            },
+            {
+              "index": 0,
+              "score": 0.46726945
+            },
+            {
+              "index": 3,
+              "score": 0.44253552
+            }
+          ],
+          "top1_correct": false
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 5,
+              "score": 0.77970809
+            },
+            {
+              "index": 0,
+              "score": 0.65559006
+            },
+            {
+              "index": 1,
+              "score": 0.46406716
+            },
+            {
+              "index": 2,
+              "score": 0.43492022
+            },
+            {
+              "index": 3,
+              "score": 0.36614746
+            },
+            {
+              "index": 4,
+              "score": 0.30846563
+            }
+          ],
+          "top1_correct": false
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 1,
+              "score": 0.81727684
+            },
+            {
+              "index": 5,
+              "score": 0.67195767
+            },
+            {
+              "index": 2,
+              "score": 0.47124809
+            },
+            {
+              "index": 3,
+              "score": 0.42642233
+            },
+            {
+              "index": 4,
+              "score": 0.31663066
+            },
+            {
+              "index": 0,
+              "score": 0.3000479
+            }
+          ],
+          "top1_correct": true
+        }
+      ],
+      "seconds": 0.385
+    },
+    {
+      "event": "test_started",
+      "test": "reranker_formatted_control"
+    },
+    {
+      "event": "test_result",
+      "test": "reranker_formatted_control",
+      "passed": true,
+      "mode": "formatted_control",
+      "correct_top1": 3,
+      "total_queries": 3,
+      "queries": [
+        {
+          "id": "plugin_permissions_zh",
+          "text": "安装 Dify 插件需要什么目录权限？",
+          "expected": 0,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.99991417
+            },
+            {
+              "index": 3,
+              "score": 0.19447117
+            },
+            {
+              "index": 4,
+              "score": 0.00024213
+            },
+            {
+              "index": 2,
+              "score": 5.572e-05
+            },
+            {
+              "index": 1,
+              "score": 3.874e-05
+            },
+            {
+              "index": 5,
+              "score": 4.41e-06
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "plugin_permissions_en",
+          "text": "What filesystem permissions are required to install Dify plugins?",
+          "expected": 0,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 0,
+              "score": 0.99992359
+            },
+            {
+              "index": 3,
+              "score": 0.27090198
+            },
+            {
+              "index": 4,
+              "score": 1.65e-05
+            },
+            {
+              "index": 1,
+              "score": 4.9e-06
+            },
+            {
+              "index": 5,
+              "score": 3.36e-06
+            },
+            {
+              "index": 2,
+              "score": 2e-06
+            }
+          ],
+          "top1_correct": true
+        },
+        {
+          "id": "embedding_zh",
+          "text": "知识库语义检索应如何把文本转成向量，向量有多少维？",
+          "expected": 1,
+          "status": 200,
+          "ranking": [
+            {
+              "index": 1,
+              "score": 0.99991071
+            },
+            {
+              "index": 2,
+              "score": 0.01094153
+            },
+            {
+              "index": 4,
+              "score": 2.888e-05
+            },
+            {
+              "index": 3,
+              "score": 1.834e-05
+            },
+            {
+              "index": 0,
+              "score": 7.21e-06
+            },
+            {
+              "index": 5,
+              "score": 5.09e-06
+            }
+          ],
+          "top1_correct": true
+        }
+      ],
+      "template_source": "https://raw.githubusercontent.com/vllm-project/vllm/v0.17.1/examples/pooling/score/template/qwen3_reranker.jinja",
+      "template_sha256": "a21228c7adb94dc5222d338e00e320b877ba3f5ad98a16c09989f70f1c600d9f",
+      "diagnostic_only": true,
+      "seconds": 2.32
+    },
+    {
+      "event": "configuration_unchanged",
+      "unchanged": true
+    },
+    {
+      "event": "run_completed",
+      "tests": 17,
+      "passed": 14,
+      "failed": [
+        "embedding_retrieval_and_query_prefix",
+        "reranker_dify_normal",
+        "reranker_direct_normal"
+      ]
+    }
+  ],
+  "runner_exit_code": 0
+}

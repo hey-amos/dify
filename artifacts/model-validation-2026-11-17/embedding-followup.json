@@ -1,0 +1,61 @@
+{
+  "records": [
+    {
+      "event": "followup_started",
+      "utc": "2026-11-17T06:18:53.202142+00:00"
+    },
+    {
+      "event": "test_started",
+      "test": "embedding_prefix_controlled_comparison"
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_prefix_controlled_comparison",
+      "passed": true,
+      "queries": [
+        {
+          "query_id": "plugin_permissions_zh",
+          "cosine_dify_vs_prefixed_single": 1.0,
+          "max_abs_dify_vs_prefixed_single": 0.0,
+          "cosine_dify_vs_prefixed_batch": 0.9999975583238507,
+          "max_abs_dify_vs_prefixed_batch": 0.0002265647053718567,
+          "cosine_dify_vs_no_prefix": 0.9597608529306425,
+          "max_abs_repeat_same_input": 0.0
+        },
+        {
+          "query_id": "plugin_permissions_en",
+          "cosine_dify_vs_prefixed_single": 1.0,
+          "max_abs_dify_vs_prefixed_single": 0.0,
+          "cosine_dify_vs_prefixed_batch": 0.999997682892687,
+          "max_abs_dify_vs_prefixed_batch": 0.00020414497703313828,
+          "cosine_dify_vs_no_prefix": 0.9558154874675531,
+          "max_abs_repeat_same_input": 0.0
+        },
+        {
+          "query_id": "embedding_zh",
+          "cosine_dify_vs_prefixed_single": 1.0,
+          "max_abs_dify_vs_prefixed_single": 0.0,
+          "cosine_dify_vs_prefixed_batch": 1.0,
+          "max_abs_dify_vs_prefixed_batch": 0.0,
+          "cosine_dify_vs_no_prefix": 0.9558111374893589,
+          "max_abs_repeat_same_input": 0.0
+        }
+      ],
+      "seconds": 5.642
+    },
+    {
+      "event": "test_result",
+      "test": "embedding_batch_setting_effective",
+      "passed": false,
+      "saved_max_chunks": 16,
+      "schema_max_chunks": 1,
+      "installed_sdk_source": "dify_plugin/interfaces/model/openai_compatible/text_embedding.py:241",
+      "finding": "Installed SDK schema sets MAX_CHUNKS to 1; plugin _get_max_chunks reads that schema."
+    },
+    {
+      "event": "configuration_unchanged",
+      "unchanged": true
+    }
+  ],
+  "runner_exit_code": 0
+}
