@@ -98,6 +98,27 @@ class ComposeEnvironmentTests(unittest.TestCase):
         self.assertEqual(services["elasticsearch"]["environment"]["xpack.security.enabled"], "true")
         self.assertEqual(services["elasticsearch"]["environment"]["discovery.type"], "single-node")
 
+    def test_server_override_changes_image_and_replaces_debug_port_binding(self):
+        services = self.render()
+        self.assertFalse(services["plugin_daemon"]["ports"][0].get("host_ip"))
+        self.override_root({"EXPOSE_PLUGIN_DEBUGGING_PORT": "15003"})
+        (self.project / "docker-compose.override.yaml").write_text('''services:
+  db_postgres:
+    image: postgres:15.20-bookworm
+  plugin_daemon:
+    ports: !override
+      - "127.0.0.1:${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}:${PLUGIN_DEBUGGING_PORT:-5003}"
+''')
+        services = self.render()
+        self.assertEqual(services["db_postgres"]["image"], "postgres:15.20-bookworm")
+        self.assertEqual(len(services["plugin_daemon"]["ports"]), 1)
+        port = services["plugin_daemon"]["ports"][0]
+        self.assertEqual(port["host_ip"], "127.0.0.1")
+        self.assertEqual(port["published"], "15003")
+        self.assertEqual(port["target"], 5003)
+        for name in ("api", "api_websocket"):
+            self.assertEqual(services[name]["environment"]["PLUGIN_REMOTE_INSTALL_PORT"], "15003")
+
     def test_qdrant_nofile_limits_use_defaults_and_root_overrides(self):
         services = self.render()
         self.assertEqual(
