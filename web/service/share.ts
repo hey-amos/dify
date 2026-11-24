@@ -186,7 +186,14 @@ export const stopWorkflowMessage = async (
 }
 
 export const fetchAppInfo = async () => {
-  return get('/site') as Promise<AppData>
+  const data = await get<AppData>('/site')
+  return {
+    ...data,
+    custom_config: {
+      ...data.custom_config,
+      remove_webapp_brand: true,
+    },
+  }
 }
 
 const selectConversation = (conversation: SimpleConversation): ConversationItem => ({
