@@ -1,23 +1,39 @@
-# Docker 协作约定
+# Docker 目录 Agent 协作指南
 
-本文件适用于 `docker/`。开始前核对当前分支、工作区和部署基线，保留用户已有的修改。[仓库协作约定](../AGENTS.md) · [本地变更记录](LOCAL_CHANGES.md)
+本文件适用于 `docker/` 目录，配合仓库根目录的 [AGENTS.md](../AGENTS.md) 使用。开始任何修改前，先确认当前分支和工作区状态，保留用户已有的本地改动。
 
-## 配置与生成
+## 当前分支与基线
 
-- 根 `.env` 保存 Compose 编排参数和显式覆盖，`.env.example` 仅列出需要手工配置的项。
-- 服务默认值位于 `envs/**/*.defaults`。服务专属配置写入对应的 `.env`，Web、API 和 worker 共用的公共地址可写入 `envs/core-services/urls.env`。根 `.env` 中的显式设置优先。[配置加载说明](README.md#configure-dify)
-- Git 会忽略本地 `.env` 和 `envs/**/*.env`。编辑已有配置时保留凭据和文件权限，核对渲染结果时只输出所需的非敏感字段。
-- Compose 使用预构建镜像。排查运行时问题时，核对实例实际使用的镜像版本。
+- **当前分支**：`v1.20.0`
+- **上游基线**：官方 tag `1.20.0`（commit `7bef4e1b2d`）
+- **相对上游的改动范围**：仅在 `docker/` 下新增了本仓库维护的文档，未改动上游代码、默认环境变量模板和 Compose 编排文件。可用 `git diff --name-status refs/tags/1.20.0..HEAD` 核对。
 
-修改服务编排时先编辑 `docker-compose-template.yaml`，然后在 `docker/` 目录生成配套的 `docker-compose.yaml`，一并检查两份文件的差异。
+## 新增文档索引
 
-```sh
-python3 generate_docker_compose --compose-only
-```
+| 文件 | 用途 |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | 本文件：向 Agent 说明当前分支基线、新增文档用途以及 `docker/` 目录的修改与验证规范 |
+| [LOCAL_CHANGES.md](LOCAL_CHANGES.md) | 记录当前分支相对于上游基线 `1.20.0` 的改动清单与版本升级验证日志 |
+| [LOCAL_DEPLOYMENT.md](LOCAL_DEPLOYMENT.md) | 记录本地及服务器部署步骤、容器启停方法与 `docker/.env` 编写规范 |
+| [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) | 记录本项目使用的模型供应商推荐参数、应用生成参数及实测结果 |
 
-## 验证与记录
+上游官方文档见 [README.md](README.md)（包含完整的环境变量加载优先级、HTTPS、可信代理、Middleware 等说明）。
 
-在 `docker/` 目录按变更范围执行检查。
+## 配置与编排规范
+
+- **保护本地 `.env`**：`docker/.env` 与 `docker/envs/**/*.env` 均被 Git 忽略。切勿用模板覆盖已有 `.env`，但应与 `.env.example` 及 [LOCAL_DEPLOYMENT.md](LOCAL_DEPLOYMENT.md) 中的模板对比，按需补齐缺少的变量；编辑时保留原有凭据和 `600` 文件权限，排查或输出配置时不要打印敏感密钥。
+- **配置分层**：
+  - `.env.example` 仅保留必须手工填写的最小项。
+  - `docker/.env` 存放当前部署的 Compose 参数与显式覆盖，优先级高于 `envs/**/*.env` 与 `envs/**/*.defaults`（详见 [README.md#configure-dify](README.md#configure-dify)）。
+  - 服务专属的可选覆盖写入 `envs/` 下对应的 `.env` 文件；`docker/.env` 中复用相同公开地址时，优先使用 `${CONSOLE_WEB_URL}` 引用，避免多处硬编码。
+- **修改 Compose 编排**：不要直接手工改 `docker-compose.yaml`。先编辑 `docker-compose-template.yaml`，再在 `docker/` 目录运行以下命令同步生成：
+  ```sh
+  python3 generate_docker_compose --compose-only
+  ```
+
+## 验证与变更记录
+
+修改配置或编排后，在 `docker/` 目录按需运行检查：
 
 ```sh
 docker compose config -q
@@ -25,6 +41,6 @@ python3 tests/test_compose_environment.py
 git diff --check
 ```
 
-文档变更核对链接和命令示例。配置变更检查 Compose 的实际渲染值。涉及持久化数据目录的改动，在临时目录中验证初始化和失败时的行为。
-
-部署操作按用户当次授权执行，保留实例的数据卷、凭据和模型配置。完成变更后，将日期、基线、涉及文件和验证结果写入变更记录。容器运行状态和模型调用结果以对应实例的实测为准。[本地变更记录](LOCAL_CHANGES.md) · [本地部署指南](LOCAL_DEPLOYMENT.md) · [模型配置与验证记录](MODEL_RECOMMENDATIONS.md)
+- 改动 `.env` 或编排后，可用 `docker compose config` 核对关键非敏感字段的展开结果。
+- 涉及启停容器、重建服务或数据库迁移的操作，仅在用户明确授权时执行，且必须保留现有数据卷、凭据和模型配置。
+- 若对当前分支做了新的基线外改动或完成版本升级验证，同步更新 [LOCAL_CHANGES.md](LOCAL_CHANGES.md)。
