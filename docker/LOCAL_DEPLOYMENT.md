@@ -98,6 +98,26 @@ docker compose ps --all
 ## 4. 常用运维操作
 
 - **使 `.env` 修改生效**：修改 `docker/.env` 后执行 `docker compose up -d`（`docker compose restart` **不会**重新加载环境变量）。
+- **构建并部署二开前端**：[docker-compose.override.yaml](docker-compose.override.yaml) 会被 Docker Compose 自动合并加载，用于在不改动上游 `docker-compose.yaml` 的前提下覆写 `web` 服务。
+  - 本机或服务器从源码构建时，文件内容如下（`context` 必须指向仓库根目录 `..`）：
+    ```yaml
+    services:
+      web:
+        image: dify-web:local
+        build:
+          context: ..
+          dockerfile: web/Dockerfile
+    ```
+  - 如果服务器改为直接拉取提前推送到镜像仓库的自定义镜像，只需保留 `image` 行（去掉 `build`）：
+    ```yaml
+    services:
+      web:
+        image: <你的镜像仓库>/dify-web:1.20.0-custom
+    ```
+  - 修改 `web/` 代码后在 `docker/` 目录执行以下命令，仅重建并替换 `web` 容器，不影响数据库与其他后端服务（服务器直接源码构建建议至少有 6–8 GiB 可用内存）：
+    ```sh
+    docker compose up -d --build web
+    ```
 - **检查展开后的配置**：运行 `docker compose config` 核对实际注入容器的环境变量（注意勿将敏感密钥贴到日志或文档中）。
 - **停止服务**：`docker compose down`（不加 `-v`，以保留数据库与文件持久化卷）。
 - **模型配置**：服务就绪后，参考 [MODEL_RECOMMENDATIONS.md](MODEL_RECOMMENDATIONS.md) 在控制台配置模型供应商与生成参数。
